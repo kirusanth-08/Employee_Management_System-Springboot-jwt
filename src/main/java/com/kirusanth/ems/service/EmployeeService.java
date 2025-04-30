@@ -1,6 +1,7 @@
 package com.kirusanth.ems.service;
 
 import com.kirusanth.ems.dto.EmployeeDTO;
+import com.kirusanth.ems.model.Role;
 import java.util.List;
 
 public interface EmployeeService {
@@ -13,4 +14,5 @@ public interface EmployeeService {
     List<EmployeeDTO> getEmployeesByManager(Long managerId);
     EmployeeDTO deactivateEmployee(Long id);
     EmployeeDTO activateEmployee(Long id);
+    EmployeeDTO assignRole(Long id, Role role);
 }

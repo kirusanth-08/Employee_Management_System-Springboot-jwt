@@ -2,9 +2,8 @@ package com.kirusanth.ems.service.impl;
 
 import com.kirusanth.ems.dto.EmployeeDTO;
 import com.kirusanth.ems.exception.ResourceNotFoundException;
-import com.kirusanth.ems.model.Department;
 import com.kirusanth.ems.model.Employee;
-import com.kirusanth.ems.repository.DepartmentRepository;
+import com.kirusanth.ems.model.Role;
 import com.kirusanth.ems.repository.EmployeeRepository;
 import com.kirusanth.ems.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +15,10 @@ import java.util.stream.Collectors;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
-    private final DepartmentRepository departmentRepository;
 
     @Autowired
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
-        this.departmentRepository = departmentRepository;
     }
 
     @Override
@@ -56,17 +53,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPhoneNumber(employeeDTO.getPhoneNumber());
         employee.setHireDate(employeeDTO.getHireDate());
         employee.setSalary(employeeDTO.getSalary());
-        
-        if (employeeDTO.getDepartmentId() != null) {
-            Department department = departmentRepository.findById(employeeDTO.getDepartmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Department", "id", employeeDTO.getDepartmentId()));
-            employee.setDepartment(department);
-        }
+        employee.setRole(employeeDTO.getRole());
         
         if (employeeDTO.getManagerId() != null) {
             Employee manager = employeeRepository.findById(employeeDTO.getManagerId())
                     .orElseThrow(() -> new ResourceNotFoundException("Manager", "id", employeeDTO.getManagerId()));
             employee.setManager(manager);
+        } else {
+            employee.setManager(null);
         }
         
         Employee updatedEmployee = employeeRepository.save(employee);
@@ -78,13 +72,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
         employeeRepository.delete(employee);
-    }
-
-    @Override
-    public List<EmployeeDTO> getEmployeesByDepartment(Long departmentId) {
-        return employeeRepository.findByDepartmentId(departmentId).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -109,6 +96,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setActive(true);
         return convertToDTO(employeeRepository.save(employee));
     }
+    
+    @Override
+    public EmployeeDTO assignRole(Long id, Role role) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
+        employee.setRole(role);
+        return convertToDTO(employeeRepository.save(employee));
+    }
 
     private EmployeeDTO convertToDTO(Employee employee) {
         EmployeeDTO dto = new EmployeeDTO();
@@ -120,11 +115,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         dto.setHireDate(employee.getHireDate());
         dto.setSalary(employee.getSalary());
         dto.setActive(employee.isActive());
-        
-        if (employee.getDepartment() != null) {
-            dto.setDepartmentId(employee.getDepartment().getId());
-            dto.setDepartmentName(employee.getDepartment().getName());
-        }
+        dto.setRole(employee.getRole());
         
         if (employee.getManager() != null) {
             dto.setManagerId(employee.getManager().getId());
@@ -144,10 +135,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setSalary(dto.getSalary());
         employee.setActive(dto.isActive());
         
-        if (dto.getDepartmentId() != null) {
-            Department department = departmentRepository.findById(dto.getDepartmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Department", "id", dto.getDepartmentId()));
-            employee.setDepartment(department);
+        if (dto.getRole() != null) {
+            employee.setRole(dto.getRole());
+        } else {
+            employee.setRole(Role.EMPLOYEE); // Default role
         }
         
         if (dto.getManagerId() != null) {

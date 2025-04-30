@@ -1,18 +1,15 @@
 # Employee Management System
 
-A comprehensive Spring Boot application for managing employees and departments within an organization.
+A comprehensive Spring Boot application for managing employees within an organization.
 
 ## Features
 
 - **Employee Management**:
   - Create, read, update, and delete employees
   - Activate/deactivate employee accounts
-  - Assign employees to departments and managers
-  - View employees by department or manager
-
-- **Department Management**:
-  - Create, read, update, and delete departments
-  - Track employee count per department
+  - Assign employees to managers
+  - Assign roles to employees (EMPLOYEE, MANAGER, ADMIN)
+  - View employees by manager
 
 ## Technologies Used
 
@@ -34,14 +31,9 @@ A comprehensive Spring Boot application for managing employees and departments w
 - phone_number
 - hire_date
 - salary
-- department_id (FK)
-- manager_id (FK)
+- manager_id (FK, self-referential)
+- role
 - active
-
-### Departments Table
-- id (PK)
-- name (unique)
-- description
 
 ## Getting Started
 
@@ -94,31 +86,12 @@ A comprehensive Spring Boot application for managing employees and departments w
 | POST | `/api/employees` | Create new employee |
 | PUT | `/api/employees/{id}` | Update employee |
 | DELETE | `/api/employees/{id}` | Delete employee |
-| GET | `/api/employees/department/{departmentId}` | Get employees by department |
 | GET | `/api/employees/manager/{managerId}` | Get employees by manager |
 | PUT | `/api/employees/{id}/activate` | Activate employee |
 | PUT | `/api/employees/{id}/deactivate` | Deactivate employee |
-
-### Department APIs
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/departments` | Get all departments |
-| GET | `/api/departments/{id}` | Get department by ID |
-| POST | `/api/departments` | Create new department |
-| PUT | `/api/departments/{id}` | Update department |
-| DELETE | `/api/departments/{id}` | Delete department |
+| PUT | `/api/employees/{id}/role/{role}` | Assign role to employee |
 
 ## Example Requests
-
-### Create Department
-```json
-POST /api/departments
-{
-  "name": "Engineering",
-  "description": "Software development and engineering"
-}
-```
 
 ### Create Employee
 ```json
@@ -130,7 +103,7 @@ POST /api/employees
   "phoneNumber": "1234567890",
   "hireDate": "2023-01-15",
   "salary": 75000.00,
-  "departmentId": 1,
+  "role": "MANAGER",
   "active": true
 }
 ```
@@ -145,10 +118,15 @@ PUT /api/employees/2
   "phoneNumber": "0987654321",
   "hireDate": "2023-02-10",
   "salary": 65000.00,
-  "departmentId": 1,
   "managerId": 1,
+  "role": "EMPLOYEE",
   "active": true
 }
+```
+
+### Assign Role
+```
+PUT /api/employees/2/role/ADMIN
 ```
 
 ## Security

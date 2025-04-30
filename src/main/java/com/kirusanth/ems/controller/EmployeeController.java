@@ -1,6 +1,7 @@
 package com.kirusanth.ems.controller;
 
 import com.kirusanth.ems.dto.EmployeeDTO;
+import com.kirusanth.ems.model.Role;
 import com.kirusanth.ems.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,11 +46,6 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/department/{departmentId}")
-    public ResponseEntity<List<EmployeeDTO>> getEmployeesByDepartment(@PathVariable Long departmentId) {
-        return ResponseEntity.ok(employeeService.getEmployeesByDepartment(departmentId));
-    }
-
     @GetMapping("/manager/{managerId}")
     public ResponseEntity<List<EmployeeDTO>> getEmployeesByManager(@PathVariable Long managerId) {
         return ResponseEntity.ok(employeeService.getEmployeesByManager(managerId));
@@ -63,5 +59,10 @@ public class EmployeeController {
     @PutMapping("/{id}/activate")
     public ResponseEntity<EmployeeDTO> activateEmployee(@PathVariable Long id) {
         return ResponseEntity.ok(employeeService.activateEmployee(id));
+    }
+    
+    @PutMapping("/{id}/role/{role}")
+    public ResponseEntity<EmployeeDTO> assignRole(@PathVariable Long id, @PathVariable Role role) {
+        return ResponseEntity.ok(employeeService.assignRole(id, role));
     }
 }
