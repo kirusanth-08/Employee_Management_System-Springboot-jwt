@@ -208,6 +208,39 @@ A comprehensive Spring Boot application for managing employees within an organiz
    Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
    ```
 
+## CORS Configuration
+
+The application is configured to allow Cross-Origin Resource Sharing (CORS), which enables the API to be accessed from web applications hosted on different domains.
+
+### Default CORS Configuration
+- Allowed Origins: All domains (*)
+- Allowed Methods: GET, POST, PUT, DELETE, OPTIONS
+- Allowed Headers: Authorization, Content-Type, Origin
+- Allow Credentials: true
+- Max Age: 3600 seconds (1 hour)
+
+### Using CORS in Front-end Applications
+
+When making requests from a front-end application on a different domain, include the following headers:
+
+```javascript
+// Example using fetch API
+fetch('http://localhost:8080/api/employees', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_JWT_TOKEN'
+  },
+  credentials: 'include'  // Include if cookies are needed
+})
+```
+
+### Common CORS Issues with JWT
+
+- If you experience "No 'Access-Control-Allow-Origin' header" errors, ensure your client is using the correct protocol (http/https)
+- For preflight requests, the OPTIONS method must be properly handled by the server
+- Authorization headers are explicitly allowed in the CORS configuration
+
 ## Examples
 
 ### Register a new user
