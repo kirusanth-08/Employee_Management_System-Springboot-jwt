@@ -10,7 +10,6 @@ public interface EmployeeService {
     EmployeeDTO createEmployee(EmployeeDTO employeeDTO);
     EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO);
     void deleteEmployee(Long id);
-    List<EmployeeDTO> getEmployeesByDepartment(Long departmentId);
     List<EmployeeDTO> getEmployeesByManager(Long managerId);
     EmployeeDTO deactivateEmployee(Long id);
     EmployeeDTO activateEmployee(Long id);
