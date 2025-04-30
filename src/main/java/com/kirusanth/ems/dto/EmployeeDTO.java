@@ -1,5 +1,6 @@
 package com.kirusanth.ems.dto;
 
+import com.kirusanth.ems.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,9 +17,8 @@ public class EmployeeDTO {
     private String phoneNumber;
     private LocalDate hireDate;
     private Double salary;
-    private Long departmentId;
-    private String departmentName;
     private Long managerId;
     private String managerName;
+    private Role role;
     private boolean active;
 }

@@ -33,12 +33,12 @@ public class Employee {
     private Double salary;
     
     @ManyToOne
-    @JoinColumn(name = "department_id")
-    private Department department;
-    
-    @ManyToOne
     @JoinColumn(name = "manager_id")
     private Employee manager;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.EMPLOYEE;
     
     @Column(columnDefinition = "boolean default true")
     private boolean active = true;
