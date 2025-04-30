@@ -1,8 +1,13 @@
 # Employee Management System
 
-A comprehensive Spring Boot application for managing employees within an organization.
+A comprehensive Spring Boot application for managing employees within an organization with JWT authentication.
 
 ## Features
+
+- **Authentication**:
+  - User registration and login
+  - JWT token-based authentication
+  - Role-based access control
 
 - **Employee Management**:
   - Create, read, update, and delete employees
@@ -17,6 +22,7 @@ A comprehensive Spring Boot application for managing employees within an organiz
 - **Spring Boot 3.4.5**: Application framework
 - **Spring Data JPA**: Data persistence
 - **Spring Security**: Authentication and authorization
+- **JWT**: JSON Web Token authentication
 - **MySQL**: Database
 - **Lombok**: Reduces boilerplate code
 - **Maven**: Dependency management and build tool
@@ -32,8 +38,20 @@ A comprehensive Spring Boot application for managing employees within an organiz
 - hire_date
 - salary
 - manager_id (FK, self-referential)
-- role
-- active
+- role (ENUM: EMPLOYEE, MANAGER, ADMIN)
+- active (boolean)
+
+### Users Table
+- id (PK)
+- username (unique)
+- password (encrypted)
+- email (unique)
+- full_name
+- active (boolean)
+
+### User_Roles Table
+- user_id (FK)
+- role (ENUM: EMPLOYEE, MANAGER, ADMIN)
 
 ## Getting Started
 
@@ -77,58 +95,153 @@ A comprehensive Spring Boot application for managing employees within an organiz
 
 ## API Endpoints
 
+### Authentication APIs
+
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| POST | `/api/auth/register` | Register a new user | Public |
+| POST | `/api/auth/login` | Login and get JWT token | Public |
+
+### User Management APIs
+
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/api/users` | Get all users | ADMIN |
+| GET | `/api/users/{id}` | Get user by ID | ADMIN or Self |
+| GET | `/api/users/username/{username}` | Get user by username | ADMIN or Self |
+| PUT | `/api/users/{id}` | Update user | ADMIN or Self |
+| DELETE | `/api/users/{id}` | Delete user | ADMIN |
+
 ### Employee APIs
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/employees` | Get all employees |
-| GET | `/api/employees/{id}` | Get employee by ID |
-| POST | `/api/employees` | Create new employee |
-| PUT | `/api/employees/{id}` | Update employee |
-| DELETE | `/api/employees/{id}` | Delete employee |
-| GET | `/api/employees/manager/{managerId}` | Get employees by manager |
-| PUT | `/api/employees/{id}/activate` | Activate employee |
-| PUT | `/api/employees/{id}/deactivate` | Deactivate employee |
-| PUT | `/api/employees/{id}/role/{role}` | Assign role to employee |
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/api/employees` | Get all employees | Authenticated |
+| GET | `/api/employees/{id}` | Get employee by ID | Authenticated |
+| POST | `/api/employees` | Create new employee | MANAGER, ADMIN |
+| PUT | `/api/employees/{id}` | Update employee | MANAGER, ADMIN |
+| DELETE | `/api/employees/{id}` | Delete employee | ADMIN |
+| GET | `/api/employees/manager/{managerId}` | Get employees by manager | MANAGER, ADMIN |
+| PUT | `/api/employees/{id}/activate` | Activate employee | MANAGER, ADMIN |
+| PUT | `/api/employees/{id}/deactivate` | Deactivate employee | MANAGER, ADMIN |
+| PUT | `/api/employees/{id}/role/{role}` | Assign role to employee | ADMIN |
 
-## Example Requests
+## Data Formats
 
-### Create Employee
+### Authentication
+
+#### Register User Request
 ```json
-POST /api/employees
 {
+  "username": "johndoe",
+  "email": "john.doe@example.com",
+  "password": "securepassword",
+  "fullName": "John Doe",
+  "roles": ["EMPLOYEE"]
+}
+```
+
+#### Login Request
+```json
+{
+  "username": "johndoe",
+  "password": "securepassword"
+}
+```
+
+#### Authentication Response
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "username": "johndoe",
+  "email": "john.doe@example.com"
+}
+```
+
+### User Management
+
+#### User Data Format
+```json
+{
+  "id": 1,
+  "username": "johndoe",
+  "email": "john.doe@example.com",
+  "fullName": "John Doe",
+  "roles": ["EMPLOYEE"],
+  "active": true
+}
+```
+
+### Employee Management
+
+#### Employee Data Format
+```json
+{
+  "id": 1,
   "firstName": "John",
   "lastName": "Doe",
   "email": "john.doe@company.com",
   "phoneNumber": "1234567890",
   "hireDate": "2023-01-15",
   "salary": 75000.00,
-  "role": "MANAGER",
-  "active": true
-}
-```
-
-### Assign Manager
-```json
-PUT /api/employees/2
-{
-  "firstName": "Jane",
-  "lastName": "Smith",
-  "email": "jane.smith@company.com",
-  "phoneNumber": "0987654321",
-  "hireDate": "2023-02-10",
-  "salary": 65000.00,
-  "managerId": 1,
+  "managerId": 2,
+  "managerName": "Jane Smith",
   "role": "EMPLOYEE",
   "active": true
 }
 ```
 
+## Authentication Flow
+
+1. **Register** a new user account:
+   ```
+   POST /api/auth/register
+   ```
+
+2. **Login** to get the JWT token:
+   ```
+   POST /api/auth/login
+   ```
+
+3. **Use the JWT token** for all authenticated requests by including it in the Authorization header:
+   ```
+   Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+   ```
+
+## Examples
+
+### Register a new user
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123","email":"admin@example.com","fullName":"Admin User","roles":["ADMIN"]}'
+```
+
+### Login
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
+```
+
+### Create Employee (with JWT authentication)
+```bash
+curl -X POST http://localhost:8080/api/employees \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"firstName":"John","lastName":"Doe","email":"john.doe@company.com","phoneNumber":"1234567890","hireDate":"2023-01-15","salary":75000.00,"role":"MANAGER","active":true}'
+```
+
+### Assign Manager
+```bash
+curl -X PUT http://localhost:8080/api/employees/2 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"firstName":"Jane","lastName":"Smith","email":"jane.smith@company.com","phoneNumber":"0987654321","hireDate":"2023-02-10","salary":65000.00,"managerId":1,"role":"EMPLOYEE","active":true}'
+```
+
 ### Assign Role
+```bash
+curl -X PUT http://localhost:8080/api/employees/2/role/ADMIN \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
-PUT /api/employees/2/role/ADMIN
-```
-
-## Security
-
-The application currently uses a simplified security configuration that allows all requests. In a production environment, you should implement proper authentication and authorization mechanisms.
