@@ -46,7 +46,7 @@ public class JwtTokenProvider {
     }
     
     private SecretKey key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        return Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecret));
     }
     
     public String getUsername(String token) {
