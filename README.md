@@ -78,7 +78,26 @@ A comprehensive Spring Boot application for managing employees within an organiz
    spring.datasource.password=your-password
    ```
 
-3. **Build and run**:
+3. **Configure sensitive information**:
+
+   There are three ways to configure sensitive information like JWT secret:
+   
+   a. **Environment variables** (recommended for production):
+   ```bash
+   export JWT_SECRET=your_secure_jwt_secret_key
+   export JWT_EXPIRATION=604800000
+   ```
+   
+   b. **External properties file** (alternative approach):
+   - Create a directory named `config` in the application root
+   - Copy `config/application-secret.properties.template` to `config/application-secret.properties`
+   - Update the values in `application-secret.properties` with your secure keys
+   
+   c. **Default values** (only for development):
+   - The application will use default values if no environment variables or external properties are provided
+   - **DO NOT use default values in production**
+
+4. **Build and run**:
    ```bash
    mvn clean install
    mvn spring-boot:run
@@ -90,8 +109,15 @@ A comprehensive Spring Boot application for managing employees within an organiz
    ./mvnw spring-boot:run
    ```
 
-4. **Access the application**:
+5. **Access the application**:
    The application will be available at `http://localhost:8080`
+
+## Security Considerations
+
+- **JWT Secret Key**: Must be at least 256 bits (32 characters) long for HS256 algorithm
+- **External Configuration**: Sensitive configuration is externalized to prevent it from being committed to version control
+- **Production Deployment**: Always use environment variables or external configuration in production environments
+- **Key Rotation**: Consider implementing a key rotation policy for the JWT secret
 
 ## API Endpoints
 
